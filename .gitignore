@@ -1,0 +1,9 @@
+build/
+*.o
+*.iso
+*.img
+*.log
+.DS_Store
+.idea/
+.vscode/
+__pycache__/
