@@ -1,16 +1,22 @@
-# Gênesis OS: P0 de laboratório, 2026-10-16
+# Gênesis OS: laboratório, 2026-10-16
 
-## Evidência local nesta sessão
-- GCC/GNU ld: compilação, linking ELF64, testes de host e verificações estáticas aprovados.
-- Clang/LLD: mesmos testes aprovados.
-- Fonte implementada localmente: IDT inicial com 32 vetores, stubs de exceção, handler serial e autoteste `int3`.
-- 10 testes Python aprovados; testes C do escalonador, codificação IDT e layout trap frame aprovados.
-- `make smoke`: **não aprovado**. QEMU indisponível no ambiente de desenvolvimento.
-- Rust ainda não instalado no ambiente; nenhum módulo Rust compilado ou validado.
-- Nenhum boot real, IRQ, TSS/IST, driver, usuário ou API de sistema foi homologado.
+## Código publicado
+Bootstrap x86-64, IDT de 32 exceções, stubs, diagnóstico serial, demonstrador de scheduler, verificador ELF e testes em `lab`. A `main` permanece apenas documental.
 
-## Limite de publicação
-O código compilado encontra-se no pacote de laboratório gerado na conversa; seu upload ao GitHub ainda precisa ser verificado. Este documento não afirma que os fontes da build local estão sincronizados com a branch remota.
+## Verificação local desta etapa
+- Compilação/link ELF64 x86-64 com GCC/GNU ld: passou.
+- Compilação/link com Clang/LLD: passou.
+- 10 testes Python aprovados no artefato de desenvolvimento.
+- Testes C de round-robin, codificação IDT e layout trap frame aprovados.
+- Verificação estática ELF e Multiboot1 aprovada.
+- `make smoke`: NÃO aprovado, pois o QEMU não está instalado neste ambiente.
+- Sem demonstração de boot real nem prova de execução de `int3` em máquina virtual.
+- Rust `no_std` ainda não integrado ou testado.
+- Código da branch remota publicado, mas **não compilado novamente diretamente do checkout remoto** por indisponibilidade de rede Git no ambiente de testes. Os testes mencionados foram no pacote de trabalho local equivalente; diferenças de empacotamento remoto ainda dependem de checkout independente.
 
-## Próximo gate
-Executar teste real em QEMU, corrigir falhas, testar exceções e só então começar a arquitetura de memória.
+## Gates
+1. Clonar `lab` e executar `make clean check`.
+2. Instalar QEMU e executar `make smoke`, corrigindo qualquer falha.
+3. Introduzir testes de exceções e limites de memória com evidências.
+4. Introduzir toolchain Rust `no_std` reproduzível, então avançar para memória física e virtual.
+5. Não promover para `main` antes do boot validado.
