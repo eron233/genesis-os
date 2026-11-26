@@ -1,8 +1,9 @@
 #![no_std]
-#![forbid(unsafe_code)]
+#![deny(unsafe_op_in_unsafe_fn)]
 
 // Probe only. No allocation, OS calls, unwinding or kernel integration.
 // Fixed-width C ABI; wrapping behavior is defined on both sides.
+// Exported symbol is reserved for this experiment; no other definition.
 #[no_mangle]
 pub extern "C" fn genesis_rust_abi_probe(value: u64) -> u64 {
     value.rotate_left(17) ^ 0x47454e4553495301
