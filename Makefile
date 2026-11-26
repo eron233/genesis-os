@@ -40,3 +40,18 @@ run: all
 	qemu-system-x86_64 -kernel $(BUILD)/genesis.elf -m 256M -display none -serial stdio -monitor none -no-reboot
 clean:
 	rm -rf $(BUILD)
+
+# Experimental: compile and link Rust/C objects without changing the boot image.
+RUSTC ?= rustc
+NM ?= nm
+RUST_TARGET ?= x86_64-unknown-none
+.PHONY: rust-check
+rust-check: | $(BUILD)
+	$(RUSTC) --version
+	$(RUSTC) --edition=2021 --crate-name genesis_abi_probe --crate-type=lib --target $(RUST_TARGET) --emit=obj -C panic=abort -C opt-level=2 -C code-model=large -C relocation-model=static -C no-redzone=yes -o $(BUILD)/rust_abi_probe.o experiments/rust-abi/probe.rs
+	$(CC) $(CFLAGS) -c -o $(BUILD)/rust_abi_caller.o experiments/rust-abi/caller.c
+	$(LD) -m elf_x86_64 -r -o $(BUILD)/rust_abi_linked.o $(BUILD)/rust_abi_probe.o $(BUILD)/rust_abi_caller.o
+	$(NM) --undefined-only $(BUILD)/rust_abi_linked.o > $(BUILD)/rust_abi_undefined.txt
+	test ! -s $(BUILD)/rust_abi_undefined.txt
+	$(NM) --defined-only $(BUILD)/rust_abi_linked.o | grep -E '[[:space:]]T[[:space:]]genesis_rust_abi_probe$$'
+	@echo "Rust/C ABI: compilacao e link de objetos aprovados; boot NAO testado."
